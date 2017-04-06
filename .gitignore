@@ -3,6 +3,7 @@
 .conf-secret/
 static_root/
 _Dockerfile*
+Dockerfile.*
 django_app/static/css/
 bower_components/
 node_modules/
