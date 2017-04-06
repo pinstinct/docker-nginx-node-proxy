@@ -7,7 +7,7 @@ Dockerfile.*
 django_app/static/css/
 bower_components/
 node_modules/
-
+front/
 
 # node
 
