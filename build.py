@@ -16,7 +16,7 @@ IMAGE_DEBUG = 'front-debug'
 IMAGE_PRODUCTION = 'front-production'
 IMAGE_DOCKERHUB = 'front'
 
-MAINTAINER = 'dev@azelf.com'
+MAINTAINER = 'dev@abc.com'
 DOCKERFILE_BASE = 'Dockerfile.base'
 DOCKERFILE_BASE2 = 'Dockerfile.base2'
 DOCKERFILE_DEBUG = 'Dockerfile.debug'
@@ -78,7 +78,7 @@ elif args.mode == MODE_PRODUCTION:
     imagename = IMAGE_PRODUCTION
 elif args.mode == MODE_DOCKERHUB:
     dockerfile = dockerfile_template.format(
-        from_image='azelf/front',
+        from_image='hm07/front',
         maintainer=MAINTAINER,
         base='',
         extra=dockerfile_extra_dockerhub,
