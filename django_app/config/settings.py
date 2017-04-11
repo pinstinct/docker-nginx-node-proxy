@@ -9,29 +9,63 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-
+import json
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'zv%4tpl=9asr((d8m-09@fy*l@jy1blbi-i+($-^kx4*qpi9c*'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = os.environ.get('MODE') == 'DEBUG'
+# STORAGE_S3 = os.environ.get('STORAGE') == 'S3' or DEBUG is False
+# DB_RDS = os.environ.get('DB') == 'RDS'
+# print('DEBUG: {}'.format(DEBUG))
+# print('STORAGE_S3 : {}'.format(STORAGE_S3))
+# print('DB_RDS : {}'.format(DB_RDS))
 
+# Paths
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = os.path.dirname(BASE_DIR)
+# Template
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+# Static
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+BOWER_DIR = os.path.join(ROOT_DIR, 'bower_components')
+STATICFILES_DIRS = (
+    STATIC_DIR,
+    BOWER_DIR,
+)
+
+# Config files
+CONF_DIR = os.path.join(ROOT_DIR, '.conf-secret')
+CONFIG_FILE_COMMON = os.path.join(CONF_DIR, 'settings_common.json')
+if DEBUG:
+    CONFIG_FILE = os.path.join(CONF_DIR, 'settings_local.json')
+else:
+    CONFIG_FILE = os.path.join(CONF_DIR, 'settings_deploy.json')
+config_common = json.loads(open(CONFIG_FILE_COMMON).read())
+config = json.loads(open(CONFIG_FILE).read())
+# common과 현재 사용설정 (local 또는 deploy)를 합쳐줌
+for key, key_dict in config_common.items():
+    if not config.get(key):
+        config[key] = {}
+    for inner_key, inner_key_dict in key_dict.items():
+        config[key][inner_key] = inner_key_dict
+
+# Login redirect
+SECRET_KEY = config['django']['secret_key']
 ALLOWED_HOSTS = [
     "*",
 ]
 
+# Celery
+CELERY_BROKER_TRANSPORT = 'sqs'
+CELERY_BROKER_URL = 'sqs://{aws_access_key_id}:{aws_secret_access_key}@'.format(
+    aws_access_key_id=config['aws']['access_key_id'],
+    aws_secret_access_key=config['aws']['secret_access_key'],
+)
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'region': 'ap-northeast-2',
+}
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -73,7 +107,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
@@ -83,7 +116,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -103,7 +135,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -116,7 +147,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
