@@ -16,7 +16,7 @@ IMAGE_DEBUG = 'front-debug'
 IMAGE_PRODUCTION = 'front-production'
 IMAGE_DOCKERHUB = 'front'
 
-MAINTAINER = 'dev@abc.com'
+MAINTAINER = 'gusals3407@gmail.com'
 DOCKERFILE_BASE = 'Dockerfile.base'
 DOCKERFILE_BASE2 = 'Dockerfile.base2'
 DOCKERFILE_DEBUG = 'Dockerfile.debug'
@@ -69,9 +69,9 @@ elif args.mode == MODE_DEBUG:
     imagename = IMAGE_DEBUG
 elif args.mode == MODE_PRODUCTION:
     dockerfile = dockerfile_template.format(
-        from_image='ubuntu:16.04',
+        from_image=IMAGE_BASE2,
         maintainer=MAINTAINER,
-        base=dockerfile_base,
+        base='',
         extra=dockerfile_extra
     )
     filename = DOCKERFILE_PRODUCTION

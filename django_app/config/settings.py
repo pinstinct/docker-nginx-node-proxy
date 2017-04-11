@@ -11,27 +11,15 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 import json
 import os
+from urllib.parse import quote
 
 DEBUG = True
-# DEBUG = os.environ.get('MODE') == 'DEBUG'
-# STORAGE_S3 = os.environ.get('STORAGE') == 'S3' or DEBUG is False
-# DB_RDS = os.environ.get('DB') == 'RDS'
-# print('DEBUG: {}'.format(DEBUG))
-# print('STORAGE_S3 : {}'.format(STORAGE_S3))
-# print('DB_RDS : {}'.format(DB_RDS))
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = os.path.dirname(BASE_DIR)
-# Template
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
-# Static
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
-BOWER_DIR = os.path.join(ROOT_DIR, 'bower_components')
-STATICFILES_DIRS = (
-    STATIC_DIR,
-    BOWER_DIR,
-)
 
 # Config files
 CONF_DIR = os.path.join(ROOT_DIR, '.conf-secret')
@@ -49,21 +37,21 @@ for key, key_dict in config_common.items():
     for inner_key, inner_key_dict in key_dict.items():
         config[key][inner_key] = inner_key_dict
 
-# Login redirect
-SECRET_KEY = config['django']['secret_key']
-ALLOWED_HOSTS = [
-    "*",
-]
-
 # Celery
 CELERY_BROKER_TRANSPORT = 'sqs'
 CELERY_BROKER_URL = 'sqs://{aws_access_key_id}:{aws_secret_access_key}@'.format(
-    aws_access_key_id=config['aws']['access_key_id'],
-    aws_secret_access_key=config['aws']['secret_access_key'],
+    aws_access_key_id=quote(config['aws']['access_key_id'], safe=''),
+    aws_secret_access_key=quote(config['aws']['secret_access_key'], safe=''),
 )
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     'region': 'ap-northeast-2',
 }
+CELERY_RESULT_BACKEND = 'django-db'
+
+SECRET_KEY = config['django']['secret_key']
+ALLOWED_HOSTS = [
+    "*",
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -73,6 +61,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django_celery_results',
+    'django_celery_beat',
 
     'member.apps.MemberConfig',
 ]
