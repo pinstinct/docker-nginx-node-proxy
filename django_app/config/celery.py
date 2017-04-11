@@ -16,7 +16,6 @@ app = Celery('docker-nginx-node-proxy')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django app configs.
-# 셀러리에서 맡는 작업은 등록해줘야하는데  앱별로 분리되어있을경우 아래의 이게 검색해서 알아서 태스크를 로드해옴
 app.autodiscover_tasks()
 
 
